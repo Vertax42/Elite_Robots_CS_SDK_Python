@@ -105,16 +105,32 @@ static void bindEliteDriverClass(py::module_& m) {
                 Args:
                     cb (Callable[[TrajectoryMotionResult], None]): Callback function that will be triggered in the event of finishing
             )doc")
-        .def("writeTrajectoryPoint", &EliteDriver::writeTrajectoryPoint, py::arg("positions"), py::arg("time"),
-             py::arg("blend_radius"), py::arg("cartesian"),
+        .def("writeTrajectoryPoint",
+             static_cast<bool (EliteDriver::*)(const vector6d_t&, float, float, bool)>(&EliteDriver::writeTrajectoryPoint),
+             py::arg("positions"), py::arg("time"), py::arg("blend_radius"), py::arg("cartesian"),
              R"doc(
                 Writes a trajectory point onto the dedicated socket.
 
                 Args:
-                    action (list): Desired joint or cartesian positions
+                    positions (list): Desired joint or cartesian positions
                     time (float): Time for the robot to reach this point
                     blend_radius (float): The radius to be used for blending between control points
                     cartesian (bool): True, if the point sent is cartesian, false if joint-based
+                Returns:
+                    bool: True if send success
+            )doc")
+        .def("writeTrajectoryPoint",
+             static_cast<bool (EliteDriver::*)(const vector6d_t&, float, bool, float, float)>(&EliteDriver::writeTrajectoryPoint),
+             py::arg("positions"), py::arg("blend_radius"), py::arg("cartesian"), py::arg("speed"), py::arg("acceleration"),
+             R"doc(
+                Writes a trajectory point onto the dedicated socket, using speed/acceleration instead of a time-to-point.
+
+                Args:
+                    positions (list): Desired joint or cartesian positions
+                    blend_radius (float): The radius to be used for blending between control points
+                    cartesian (bool): True, if the point sent is cartesian, false if joint-based
+                    speed (float): Joint speed for movej or TCP speed for movel
+                    acceleration (float): Joint acceleration for movej or TCP acceleration for movel
                 Returns:
                     bool: True if send success
             )doc")
